@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Tamelo.Api.Domain</RootNamespace>
+    <AssemblyName>Tamelo.Api.Domain</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="MediatR.Contracts" />
+  </ItemGroup>
+
+</Project>
