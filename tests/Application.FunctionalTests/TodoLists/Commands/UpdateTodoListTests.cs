@@ -3,7 +3,6 @@ using Tamelo.Api.Application.TodoLists.Commands.CreateTodoList;
 using Tamelo.Api.Application.TodoLists.Commands.UpdateTodoList;
 using Tamelo.Api.Domain.Entities;
 
-using static Testing;
 
 namespace Tamelo.Api.Application.FunctionalTests.TodoLists.Commands;
 

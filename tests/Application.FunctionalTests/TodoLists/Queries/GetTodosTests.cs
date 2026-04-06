@@ -2,7 +2,6 @@
 using Tamelo.Api.Domain.Entities;
 using Tamelo.Api.Domain.ValueObjects;
 
-using static Testing;
 
 namespace Tamelo.Api.Application.FunctionalTests.TodoLists.Queries;
 

@@ -5,7 +5,6 @@ using Tamelo.Api.Application.TodoLists.Commands.CreateTodoList;
 using Tamelo.Api.Domain.Entities;
 using Tamelo.Api.Domain.Enums;
 
-using static Testing;
 
 namespace Tamelo.Api.Application.FunctionalTests.TodoItems.Commands;
 

@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Tamelo.Api.Application.Common.Interfaces;
 using Tamelo.Api.Infrastructure.Data;
 
-using static Testing;
 
 namespace Tamelo.Api.Application.FunctionalTests;
 

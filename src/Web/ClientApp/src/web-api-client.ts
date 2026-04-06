@@ -772,6 +772,68 @@ export class TasksClient {
     }
 
     /**
+     * Export tasks as CSV
+     * @param projectIds (optional) 
+     * @param includeUnassigned (optional) 
+     * @param includeArchived (optional) 
+     * @return OK
+     */
+    exportTasks(projectIds: string | undefined, includeUnassigned: boolean | undefined, includeArchived: boolean | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Tasks/export?";
+        if (projectIds === null)
+            throw new globalThis.Error("The parameter 'projectIds' cannot be null.");
+        else if (projectIds !== undefined)
+            url_ += "projectIds=" + encodeURIComponent("" + projectIds) + "&";
+        if (includeUnassigned === null)
+            throw new globalThis.Error("The parameter 'includeUnassigned' cannot be null.");
+        else if (includeUnassigned !== undefined)
+            url_ += "includeUnassigned=" + encodeURIComponent("" + includeUnassigned) + "&";
+        if (includeArchived === null)
+            throw new globalThis.Error("The parameter 'includeArchived' cannot be null.");
+        else if (includeArchived !== undefined)
+            url_ += "includeArchived=" + encodeURIComponent("" + includeArchived) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processExportTasks(_response);
+        });
+    }
+
+    protected processExportTasks(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
      * Get a task by ID
      * @return OK
      */
@@ -1035,6 +1097,61 @@ export class TasksClient {
             });
         }
         return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * Import tasks from CSV rows
+     * @return OK
+     */
+    importTasks(body: ImportTasksCommand): Promise<ImportTasksResult> {
+        let url_ = this.baseUrl + "/api/Tasks/import";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processImportTasks(_response);
+        });
+    }
+
+    protected processImportTasks(response: Response): Promise<ImportTasksResult> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ImportTasksResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ImportTasksResult>(null as any);
     }
 
     /**
@@ -2273,6 +2390,186 @@ export class DayMarkerDto implements IDayMarkerDto {
 export interface IDayMarkerDto {
     date: string;
     state: string;
+
+    [key: string]: any;
+}
+
+export class ImportTaskRow implements IImportTaskRow {
+    title?: string;
+    description?: string | undefined;
+    project?: string | undefined;
+    status?: string;
+    targetDate?: string | undefined;
+    archived?: boolean;
+
+    [key: string]: any;
+
+    constructor(data?: IImportTaskRow) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.title = _data["title"];
+            this.description = _data["description"];
+            this.project = _data["project"];
+            this.status = _data["status"];
+            this.targetDate = _data["targetDate"];
+            this.archived = _data["archived"];
+        }
+    }
+
+    static fromJS(data: any): ImportTaskRow {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportTaskRow();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["title"] = this.title;
+        data["description"] = this.description;
+        data["project"] = this.project;
+        data["status"] = this.status;
+        data["targetDate"] = this.targetDate;
+        data["archived"] = this.archived;
+        return data;
+    }
+}
+
+export interface IImportTaskRow {
+    title?: string;
+    description?: string | undefined;
+    project?: string | undefined;
+    status?: string;
+    targetDate?: string | undefined;
+    archived?: boolean;
+
+    [key: string]: any;
+}
+
+export class ImportTasksCommand implements IImportTasksCommand {
+    rows?: ImportTaskRow[];
+    unknownProjectAction?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IImportTasksCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            if (Array.isArray(_data["rows"])) {
+                this.rows = [] as any;
+                for (let item of _data["rows"])
+                    this.rows!.push(ImportTaskRow.fromJS(item));
+            }
+            this.unknownProjectAction = _data["unknownProjectAction"];
+        }
+    }
+
+    static fromJS(data: any): ImportTasksCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportTasksCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        if (Array.isArray(this.rows)) {
+            data["rows"] = [];
+            for (let item of this.rows)
+                data["rows"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["unknownProjectAction"] = this.unknownProjectAction;
+        return data;
+    }
+}
+
+export interface IImportTasksCommand {
+    rows?: ImportTaskRow[];
+    unknownProjectAction?: string;
+
+    [key: string]: any;
+}
+
+export class ImportTasksResult implements IImportTasksResult {
+    imported!: number;
+    rejected!: number;
+
+    [key: string]: any;
+
+    constructor(data?: IImportTasksResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.imported = _data["imported"];
+            this.rejected = _data["rejected"];
+        }
+    }
+
+    static fromJS(data: any): ImportTasksResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportTasksResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["imported"] = this.imported;
+        data["rejected"] = this.rejected;
+        return data;
+    }
+}
+
+export interface IImportTasksResult {
+    imported: number;
+    rejected: number;
 
     [key: string]: any;
 }

@@ -3,7 +3,6 @@ using Tamelo.Api.Application.TodoItems.Commands.DeleteTodoItem;
 using Tamelo.Api.Application.TodoLists.Commands.CreateTodoList;
 using Tamelo.Api.Domain.Entities;
 
-using static Testing;
 
 namespace Tamelo.Api.Application.FunctionalTests.TodoItems.Commands;
 

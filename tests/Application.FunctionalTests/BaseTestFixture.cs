@@ -1,5 +1,4 @@
 ﻿
-using static Testing;
 
 namespace Tamelo.Api.Application.FunctionalTests;
 
