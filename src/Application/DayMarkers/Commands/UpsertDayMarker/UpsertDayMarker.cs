@@ -36,7 +36,10 @@ public class UpsertDayMarkerCommandHandler : IRequestHandler<UpsertDayMarkerComm
         var marker = await _context.DayMarkers
             .FirstOrDefaultAsync(m => m.TaskItemId == request.TaskItemId && m.Date == request.Date, cancellationToken);
 
-        if (marker == null)
+        var isNew = marker == null;
+        var oldState = marker?.State;
+
+        if (isNew)
         {
             _context.DayMarkers.Add(new DayMarker
             {
@@ -47,9 +50,21 @@ public class UpsertDayMarkerCommandHandler : IRequestHandler<UpsertDayMarkerComm
         }
         else
         {
-            marker.State = state;
+            marker!.State = state;
         }
-
         await _context.SaveChangesAsync(cancellationToken);
+
+        _context.TaskHistories.Add(new TaskHistory
+        {
+            TaskItemId = request.TaskItemId,
+            UserId = _user.Id!,
+            EventType = isNew ? "marker_set" : "marker_updated",
+            FieldName = request.Date,
+            OldValue = oldState.HasValue ? oldState.Value.ToString().ToLowerInvariant() : null,
+            NewValue = request.State.ToLowerInvariant(),
+            CreatedAt = DateTimeOffset.UtcNow,
+        });
+        await _context.SaveChangesAsync(cancellationToken);
+
     }
 }

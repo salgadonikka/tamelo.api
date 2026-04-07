@@ -11,7 +11,19 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {
+    // Original IHostApplicationBuilder-based extensions kept for backward compatibility
     public static void AddWebServices(this IHostApplicationBuilder builder)
+    {
+        AddWebServices((WebApplicationBuilder)builder);
+    }
+
+    public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)
+    {
+        AddKeyVaultIfConfigured((WebApplicationBuilder)builder);
+    }
+
+    // New overloads that accept WebApplicationBuilder so Program.cs can call them
+    public static void AddWebServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -65,7 +77,7 @@ public static class DependencyInjection
 
         // CORS — allow the React app to call this API
         var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-            ?? ["http://localhost:8080"];
+            ?? new[] { "http://localhost:8080" };
 
         builder.Services.AddCors(options =>
         {
@@ -76,7 +88,7 @@ public static class DependencyInjection
         });
     }
 
-    public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)
+    public static void AddKeyVaultIfConfigured(this WebApplicationBuilder builder)
     {
         var keyVaultUri = builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"];
         if (!string.IsNullOrWhiteSpace(keyVaultUri))

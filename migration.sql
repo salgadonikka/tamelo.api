@@ -388,3 +388,42 @@ BEGIN
 END $EF$;
 COMMIT;
 
+START TRANSACTION;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260407033113_THupdate') THEN
+    ALTER TABLE "AspNetUserTokens" ALTER COLUMN "Name" TYPE text;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260407033113_THupdate') THEN
+    ALTER TABLE "AspNetUserTokens" ALTER COLUMN "LoginProvider" TYPE text;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260407033113_THupdate') THEN
+    ALTER TABLE "AspNetUserLogins" ALTER COLUMN "ProviderKey" TYPE text;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260407033113_THupdate') THEN
+    ALTER TABLE "AspNetUserLogins" ALTER COLUMN "LoginProvider" TYPE text;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20260407033113_THupdate') THEN
+    INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+    VALUES ('20260407033113_THupdate', '10.0.3');
+    END IF;
+END $EF$;
+COMMIT;
+

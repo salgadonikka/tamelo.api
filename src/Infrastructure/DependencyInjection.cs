@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 using Tamelo.Api.Application.Common.Interfaces;
 using Tamelo.Api.Domain.Constants;
 using Tamelo.Api.Infrastructure.Data;
@@ -24,10 +28,23 @@ public static class DependencyInjection
         builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-            options.UseNpgsql(connectionString);
-            options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
-        });
+            //options.UseNpgsql(connectionString);
+            options.UseNpgsql(
+                builder.Configuration.GetConnectionString("Tamelo.ApiDb"),
+                npgsql =>
+                    {
+                        npgsql.MaxBatchSize(1);             // ← add this: one command per round-trip
+                    }
+                );
+            options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning)); 
+            //options.EnableSensitiveDataLogging();
+            //options.LogTo(Console.WriteLine, LogLevel.Information);
 
+            //// Add this temporarily
+            //var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+            //options.UseLoggerFactory(loggerFactory);
+            //options.EnableSensitiveDataLogging();
+        });
 
         builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 

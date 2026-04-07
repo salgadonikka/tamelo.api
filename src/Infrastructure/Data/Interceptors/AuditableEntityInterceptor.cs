@@ -33,13 +33,36 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
+    //public void UpdateEntities(DbContext? context)
+    //{
+    //    if (context == null) return;
+
+    //    foreach (var entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
+    //    {
+    //        if (entry.State is EntityState.Added or EntityState.Modified || entry.HasChangedOwnedEntities())
+    //        {
+    //            var utcNow = _dateTime.GetUtcNow();
+    //            if (entry.State == EntityState.Added)
+    //            {
+    //                entry.Entity.CreatedBy = _user.Id;
+    //                entry.Entity.Created = utcNow;
+    //            }
+    //            entry.Entity.LastModifiedBy = _user.Id;
+    //            entry.Entity.LastModified = utcNow;
+    //        }
+    //    }
+    //}
+
     public void UpdateEntities(DbContext? context)
     {
         if (context == null) return;
 
         foreach (var entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
         {
-            if (entry.State is EntityState.Added or EntityState.Modified || entry.HasChangedOwnedEntities())
+            // Only process entities that were explicitly Added or Modified
+            // Remove HasChangedOwnedEntities() — it causes parent to be touched
+            // when only a child/owned entity changed
+            if (entry.State is EntityState.Added or EntityState.Modified)
             {
                 var utcNow = _dateTime.GetUtcNow();
                 if (entry.State == EntityState.Added)

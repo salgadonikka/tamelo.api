@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 using Scalar.AspNetCore;
 using Tamelo.Api.Infrastructure.Data;
 
@@ -8,6 +11,10 @@ builder.AddKeyVaultIfConfigured();
 builder.AddApplicationServices();
 builder.AddInfrastructureServices();
 builder.AddWebServices();
+    
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Debug);
+builder.Logging.AddFilter("Npgsql", LogLevel.Debug);
+builder.Logging.AddFilter("Npgsql.EntityFrameworkCore.PostgreSQL", LogLevel.Debug);
 
 var app = builder.Build();
 

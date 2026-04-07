@@ -1,5 +1,6 @@
 using Tamelo.Api.Application.Common.Interfaces;
 using Tamelo.Api.Application.Common.Security;
+using Tamelo.Api.Domain.Entities;
 
 namespace Tamelo.Api.Application.DayMarkers.Commands.DeleteDayMarker;
 
@@ -29,6 +30,20 @@ public class DeleteDayMarkerCommandHandler : IRequestHandler<DeleteDayMarkerComm
         if (marker != null)
         {
             _context.DayMarkers.Remove(marker);
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            _context.TaskHistories.Add(new TaskHistory
+            {
+                TaskItemId = request.TaskItemId,
+                UserId = _user.Id!,
+                EventType = "marker_removed",
+                FieldName = request.Date,
+                OldValue = marker.State.ToString().ToLowerInvariant(),
+                NewValue = null,
+                CreatedAt = DateTimeOffset.UtcNow,
+            });
+
             await _context.SaveChangesAsync(cancellationToken);
         }
     }
