@@ -26,7 +26,7 @@
   "scripts": {
     "prestart": "node aspnetcore-https.cjs && npm run generate-api",
     "start": "vite",
-    "prebuild": "npm run generate-api",
+    "prebuild": "node -e \"if(!process.env.CI) require('child_process').execSync('npm run generate-api', {stdio:'inherit'})\"",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint ./src/",
