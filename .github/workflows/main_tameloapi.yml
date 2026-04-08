@@ -24,11 +24,11 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration Release /p:OpenApiGenerateDocumentsOnBuild=false
         working-directory: src/Web
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ./publish
+        run: dotnet publish -c Release -o ./publish /p:OpenApiGenerateDocumentsOnBuild=false
         working-directory: src/Web
 
       - name: Upload artifact for deployment job
