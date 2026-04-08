@@ -25,17 +25,17 @@ jobs:
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
-        working-directory: Tamelo.Api/src/Web
+        working-directory: src/Web
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ./publish
-        working-directory: Tamelo.Api/src/Web
+        working-directory: src/Web
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: Tamelo.Api/src/Web/publish
+          path: src/Web/publish
 
   deploy:
     runs-on: windows-latest
