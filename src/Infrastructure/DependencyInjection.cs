@@ -28,14 +28,7 @@ public static class DependencyInjection
         builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-            //options.UseNpgsql(connectionString);
-            options.UseNpgsql(
-                builder.Configuration.GetConnectionString("Tamelo.ApiDb"),
-                npgsql =>
-                    {
-                        npgsql.MaxBatchSize(1);             // ← add this: one command per round-trip
-                    }
-                );
+            options.UseNpgsql(connectionString);
             options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning)); 
             //options.EnableSensitiveDataLogging();
             //options.LogTo(Console.WriteLine, LogLevel.Information);

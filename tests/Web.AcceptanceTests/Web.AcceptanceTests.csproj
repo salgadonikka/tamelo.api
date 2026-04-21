@@ -26,6 +26,7 @@
         <PackageReference Include="Shouldly" />
         <PackageReference Include="nunit" />
         <PackageReference Include="NUnit3TestAdapter" />
+        <PackageReference Include="System.Security.Cryptography.Xml" />
     </ItemGroup>
 
 </Project>

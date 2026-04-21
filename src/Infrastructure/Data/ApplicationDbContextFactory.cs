@@ -20,9 +20,9 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
             .AddEnvironmentVariables()
             .Build();
 
-        var connectionString = configuration.GetConnectionString("Tamelo.Migrations")
+        var connectionString = configuration.GetConnectionString("Tamelo.Direct")
             ?? throw new InvalidOperationException(
-                "Connection string 'Tamelo.Migrations' not found in appsettings.json. " +
+                "Connection string 'Tamelo.Direct' not found in appsettings.json. " +
                 "This string is required for EF Core CLI operations (migrations/database update).");
 
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();

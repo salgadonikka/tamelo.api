@@ -52,7 +52,6 @@ public class UpsertDayMarkerCommandHandler : IRequestHandler<UpsertDayMarkerComm
         {
             marker!.State = state;
         }
-        await _context.SaveChangesAsync(cancellationToken);
 
         _context.TaskHistories.Add(new TaskHistory
         {
@@ -64,6 +63,7 @@ public class UpsertDayMarkerCommandHandler : IRequestHandler<UpsertDayMarkerComm
             NewValue = request.State.ToLowerInvariant(),
             CreatedAt = DateTimeOffset.UtcNow,
         });
+
         await _context.SaveChangesAsync(cancellationToken);
 
     }

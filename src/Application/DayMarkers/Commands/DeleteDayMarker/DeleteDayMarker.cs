@@ -31,8 +31,6 @@ public class DeleteDayMarkerCommandHandler : IRequestHandler<DeleteDayMarkerComm
         {
             _context.DayMarkers.Remove(marker);
 
-            await _context.SaveChangesAsync(cancellationToken);
-
             _context.TaskHistories.Add(new TaskHistory
             {
                 TaskItemId = request.TaskItemId,

@@ -11,7 +11,7 @@ The ASP.NET Core backend for **Tamelo**, *The Procrastinator's To Do List*. Buil
 | CQRS | MediatR 14 |
 | Validation | FluentValidation 12 |
 | ORM | Entity Framework Core 10 + Npgsql |
-| Database | PostgreSQL (hosted on Supabase) |
+| Database | PostgreSQL |
 | Auth | Supabase JWT (RS256/ES256 via OIDC JWKS — no shared secret) |
 | API docs | Scalar (OpenAPI) at `/api` in development |
 | Testing | NUnit + Shouldly + Testcontainers.PostgreSql |
@@ -19,8 +19,8 @@ The ASP.NET Core backend for **Tamelo**, *The Procrastinator's To Do List*. Buil
 ## Prerequisites
 
 - **.NET SDK 10.0.103** (pinned via `global.json`)
-- A **PostgreSQL** database — Supabase is recommended (session pooler for runtime, direct connection for migrations)
-- A **Supabase project** — only the project URL and JWKS endpoint are needed (no JWT secret)
+- A **PostgreSQL** database (any provider — self-hosted, Neon, Render, etc.)
+- A **Supabase project** for authentication — only the project URL and JWKS endpoint are needed (no JWT secret; the database is not on Supabase)
 
 ## Getting Started
 
@@ -31,8 +31,8 @@ Edit `src/Web/appsettings.json`:
 ```json
 {
   "ConnectionStrings": {
-    "Tamelo.ApiDb":      "Host=<pooler-host>;Database=postgres;Username=postgres.<ref>;Password=<pwd>;SSL Mode=Require;Trust Server Certificate=true;Pooling=false;No Reset On Close=true;Enlist=false",
-    "Tamelo.Migrations": "Host=db.<ref>.supabase.co;Database=postgres;Username=postgres;Password=<pwd>;SSL Mode=Require;Trust Server Certificate=true"
+    "Tamelo.ApiDb":    "Host=<host>;Port=5432;Database=tamelo;Username=<user>;Password=<password>",
+    "Tamelo.Direct":   "Host=<host>;Port=5432;Database=tamelo;Username=<user>;Password=<password>"
   },
   "Supabase": {
     "Url": "https://<ref>.supabase.co"
@@ -45,26 +45,28 @@ Edit `src/Web/appsettings.json`:
 
 | Setting | Purpose |
 |---|---|
-| `Tamelo.ApiDb` | Session pooler — used by the running API |
-| `Tamelo.Migrations` | Direct connection — used by EF Core CLI only |
-| `Supabase:Url` | Used to construct the JWKS/OIDC authority URL |
+| `Tamelo.ApiDb` | Used by the running API (can point to a pooler if needed) |
+| `Tamelo.Direct` | Direct connection — used by EF Core CLI only (`dotnet ef migrations add`, `dotnet ef database update`) |
+| `Supabase:Url` | Used to construct the JWKS/OIDC authority URL for token validation |
 | `Cors:AllowedOrigins` | Origins allowed to call the API (add your frontend URL) |
 
-> **Why two connection strings?** Supabase routes runtime traffic through PgBouncer (session pooler), which is incompatible with EF Core's migration runner. Migrations use the direct connection string; the running API uses the pooler.
+> Both connection strings can point to the same host. `Tamelo.Direct` exists so that EF Core CLI tooling always bypasses any connection pooler.
 
 ### 2. Apply database migrations
 
-EF Core migrations are **not applied on startup**. Generate an idempotent SQL script and run it via the Supabase SQL Editor:
+EF Core migrations are **not applied on startup**. Run them via the EF Core CLI using the `Tamelo.Direct` connection string:
 
 ```bash
 # From src/Infrastructure/
+dotnet ef database update --startup-project ../Web
+```
+
+To generate a SQL script instead (e.g. for a managed database that restricts CLI access):
+
+```bash
 dotnet ef migrations script --idempotent --output migration.sql \
   --project . --startup-project ../Web
 ```
-
-Paste `migration.sql` into **Supabase dashboard → SQL Editor** and run it.
-
-> Alternatively, if you have a direct PostgreSQL connection that is not behind PgBouncer (e.g. Neon): `dotnet ef database update`
 
 ### 3. Run the API
 
